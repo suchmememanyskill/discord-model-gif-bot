@@ -37,7 +37,9 @@ impl EventHandler for Handler {
         println!("User {} ({}) sent a message with attachments:", msg.author.name, msg.author.id);
 
         filtered_attachments.iter().for_each(|f| {
-            println!("Attachment: {}", f.filename);
+            let filename = f.filename.clone();
+            let content_type = f.content_type.clone().unwrap_or(String::from("unknown"));
+            println!("Attachment: {} ({})", filename, content_type);
         });
 
         let typing = ctx.http.start_typing(msg.channel_id);
