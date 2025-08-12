@@ -3,7 +3,7 @@ WORKDIR /source
 COPY . .
 RUN apt update && apt install -y wget xz-utils
 RUN cargo build --release
-RUN wget -O mesh-thumbnail https://github.com/suchmememanyskill/mesh-thumbnail/releases/download/v1.5/mesh-thumbnail-x86_64-unknown-linux-gnu
+RUN wget -O mesh-thumbnail https://github.com/suchmememanyskill/mesh-thumbnail/releases/download/v1.6/mesh-thumbnail-x86_64-unknown-linux-gnu
 RUN wget -O gifski.tar.xz https://github.com/ImageOptim/gifski/releases/download/1.34.0/gifski-1.34.0.tar.xz
 RUN tar -xvf gifski.tar.xz
 
