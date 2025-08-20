@@ -1,4 +1,4 @@
-FROM rust:slim AS build
+FROM rust:1.88.0-slim AS build
 WORKDIR /source
 COPY . .
 RUN apt update && apt install -y wget xz-utils
