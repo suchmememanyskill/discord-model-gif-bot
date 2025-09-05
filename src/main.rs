@@ -324,7 +324,7 @@ async fn main() {
             .parse()
             .expect("Expected a valid number of frames"),
         delete_old_interactions: env::var("DELETE_OLD_INTERACTIONS")
-            .unwrap_or_else(|_| "true".to_string())
+            .unwrap_or_else(|_| "false".to_string())
             .parse()
             .expect("Expected a valid boolean for delete old interactions"),
     };
