@@ -3,11 +3,13 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use serenity::all::Attachment;
+use serenity::all::CommandId;
 use serenity::all::CreateAttachment;
 use serenity::all::CreateInteractionResponse;
 use serenity::all::CreateInteractionResponseFollowup;
 use serenity::all::CreateInteractionResponseMessage;
 use serenity::all::CreateMessage;
+use serenity::all::InteractionContext;
 use serenity::async_trait;
 use serenity::builder::CreateCommand;
 use serenity::model::application::{Command, Interaction};
@@ -22,6 +24,7 @@ struct Handler {
     gifski_path: String,
     frames_per_second: f32,
     frames: u32,
+    delete_old_interactions: bool,
 }
 
 async fn generate_gif_from_attachment(
@@ -270,10 +273,27 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
 
+        if self.delete_old_interactions {
+            println!("Deleting old interactions...");
+            let commands = Command::get_global_commands(&ctx.http)
+                .await
+                .unwrap();
+
+            for command in &commands {
+                Command::delete_global_command(&ctx.http, command.id).await.unwrap();
+            }
+            println!("Old interactions deleted.");
+        }
+
         let global_create_command = Command::create_global_command(
             &ctx.http,
             CreateCommand::new("Preview 3d model")
                 .kind(serenity::all::CommandType::Message)
+                .add_context(InteractionContext::Guild)
+                .add_context(InteractionContext::PrivateChannel)
+                .add_context(InteractionContext::BotDm)
+                .add_integration_type(serenity::all::InstallationContext::Guild)
+                .add_integration_type(serenity::all::InstallationContext::User)
         )
         .await;
 
@@ -303,6 +323,10 @@ async fn main() {
             .unwrap_or_else(|_| "60".to_string())
             .parse()
             .expect("Expected a valid number of frames"),
+        delete_old_interactions: env::var("DELETE_OLD_INTERACTIONS")
+            .unwrap_or_else(|_| "true".to_string())
+            .parse()
+            .expect("Expected a valid boolean for delete old interactions"),
     };
 
     if !Path::new(&context.mesh_thumbnail_path).is_file()
