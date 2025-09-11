@@ -208,7 +208,7 @@ impl EventHandler for Handler {
             .filter(|p| {
                 vec![".3mf", ".stl", ".obj", ".gcode"]
                     .iter()
-                    .any(|f| p.filename.ends_with(f))
+                    .any(|f| p.filename.to_lowercase().ends_with(f))
             })
             .cloned()
             .collect();
