@@ -41,7 +41,7 @@ async fn generate_gif_from_attachment(
         .to_string();
 
     let extension = match original_filename.extension() {
-        Some(ext) => ext.to_string_lossy().to_string(),
+        Some(ext) => ext.to_string_lossy().to_string().to_lowercase(),
         None => {
             println!(
                 "Attachment {} has no valid extension, skipping.",
@@ -144,7 +144,7 @@ impl EventHandler for Handler {
             .filter(|p| {
                 vec![".3mf", ".stl", ".obj", ".gcode"]
                     .iter()
-                    .any(|f| p.filename.ends_with(f))
+                    .any(|f| p.filename.to_lowercase().ends_with(f))
             })
             .collect();
 
