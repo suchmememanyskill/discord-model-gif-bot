@@ -13,6 +13,7 @@ Docker compose example:
 services:
   discordmodelgifbot:
     image: ghcr.io/suchmememanyskill/discord-model-gif-bot:latest
+    restart: unless-stopped
     environment:
       - DISCORD_TOKEN=${TOKEN}
 ```
