@@ -1,6 +1,7 @@
 use std::env;
 use std::path::Path;
 use std::path::PathBuf;
+use std::time::Instant;
 
 use libmeshthumbnail::parse_model;
 use libmeshthumbnail::render;
@@ -75,15 +76,15 @@ async fn generate_gif_from_attachment(
         return None;
     }
 
+    println!("Downloaded attachment to {:?}", file_path);
+
     match {
         let file_path = file_path.clone();
         let frames_per_file = settings.frames.clone();
         let image_size = Vec2::new(512, 512);
         let outdir = PathBuf::from(temp_dir.path());
         tokio::task::spawn_blocking(move || {
-            let extension = file_path.extension().take().unwrap().to_str().take().unwrap();
-            let filename = file_path.file_name().take().unwrap().to_str().take().unwrap();
-
+            let instant = Instant::now();
             let mesh = match parse_model::handle_parse(&file_path) {
                 Ok(Some(mesh)) => mesh,
                 Ok(None) => return Some("Unsupported 3D model format.".to_string()),
@@ -91,7 +92,7 @@ async fn generate_gif_from_attachment(
             };
 
             for (i, x_coord) in (0..frames_per_file).map(|i| i as f32 * 360.0 / frames_per_file as f32).enumerate() {
-                let filename_image = format!("{}-{:02}.png", &filename[..filename.len() - extension.len()], i);
+                let filename_image = format!("a-{:02}.png", i);
                 let image_path = outdir.join(filename_image);
 
                 let render = render::render(
@@ -99,12 +100,18 @@ async fn generate_gif_from_attachment(
                     image_size, 
                     Vec3::new(x_coord, 35.0, 0.0), 
                     Vec3::broadcast(0xEE), 
-                    0.8);
+                    0.84);
 
                 if let Err(e) = render.save(&image_path) {
                     return Some(format!("Error saving rendered image: {}", e));
                 }
             }
+
+            println!(
+                "Rendered {} frames in {:?}",
+                frames_per_file,
+                instant.elapsed()
+            );
 
             None
         })
