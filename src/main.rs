@@ -105,6 +105,8 @@ async fn generate_gif_from_attachment(
                 if let Err(e) = render.save(&image_path) {
                     return Some(format!("Error saving rendered image: {}", e));
                 }
+
+                println!("Rendered frame {}/{}", i + 1, frames_per_file);
             }
 
             println!(
