@@ -2,6 +2,8 @@ use std::env;
 use std::path::Path;
 use std::path::PathBuf;
 
+use libmeshthumbnail::parse_model;
+use libmeshthumbnail::render;
 use serenity::all::Attachment;
 use serenity::all::CommandId;
 use serenity::all::CreateAttachment;
@@ -18,9 +20,10 @@ use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use tokio::io::AsyncWriteExt;
 use tokio::process::Command as TokioCommand;
+use vek::Vec2;
+use vek::Vec3;
 
 struct Handler {
-    mesh_thumbnail_path: String,
     gifski_path: String,
     frames_per_second: f32,
     frames: u32,
@@ -72,25 +75,50 @@ async fn generate_gif_from_attachment(
         return None;
     }
 
-    let mut mesh_thumbnail_command = TokioCommand::new(&settings.mesh_thumbnail_path);
+    match {
+        let file_path = file_path.clone();
+        let frames_per_file = settings.frames.clone();
+        let image_size = Vec2::new(512, 512);
+        let outdir = PathBuf::from(temp_dir.path());
+        tokio::task::spawn_blocking(move || {
+            let extension = file_path.extension().take().unwrap().to_str().take().unwrap();
+            let filename = file_path.file_name().take().unwrap().to_str().take().unwrap();
 
-    mesh_thumbnail_command
-        .arg(file_path.to_str().unwrap())
-        .arg("--outdir")
-        .arg(temp_dir.path())
-        .arg("--images-per-file")
-        .arg(settings.frames.to_string())
-        .arg("--rotatey")
-        .arg("35")
-        .arg("--inverse-zoom")
-        .arg("1.25")
-        .arg("--color")
-        .arg("FFFFFF");
+            let mesh = match parse_model::handle_parse(&file_path) {
+                Ok(Some(mesh)) => mesh,
+                Ok(None) => return Some("Unsupported 3D model format.".to_string()),
+                Err(e) => return Some(format!("Error parsing 3D model: {}", e)),
+            };
 
-    if let Err(why) = mesh_thumbnail_command.status().await {
-        println!("Failed to execute mesh thumbnail command: {}", why);
-        return None;
-    }
+            for (i, x_coord) in (0..frames_per_file).map(|i| i as f32 * 360.0 / frames_per_file as f32).enumerate() {
+                let filename_image = format!("{}-{:02}.png", &filename[..filename.len() - extension.len()], i);
+                let image_path = outdir.join(filename_image);
+
+                let render = render::render(
+                    &mesh, 
+                    image_size, 
+                    Vec3::new(x_coord, 35.0, 0.0), 
+                    Vec3::broadcast(0xEE), 
+                    0.8);
+
+                if let Err(e) = render.save(&image_path) {
+                    return Some(format!("Error saving rendered image: {}", e));
+                }
+            }
+
+            None
+        })
+    }.await {
+        Ok(Some(err)) => {
+            println!("Error processing 3D model {:?}: {}", file_path, err);
+            return None;
+        },
+        Ok(None) => {},
+        Err(e) => {
+            println!("Failed to process 3D model {:?}: {}", file_path, e);
+            return None;
+        }
+    };
 
     let mut gif_path = PathBuf::new();
     gif_path.push(temp_dir.path());
@@ -312,8 +340,6 @@ async fn main() {
     let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT;
 
     let context = Handler {
-        mesh_thumbnail_path: env::var("MESH_THUMBNAIL_PATH")
-            .expect("Expected a mesh-thumbnail path in the environment"),
         gifski_path: env::var("GIFSKI_PATH").expect("Expected a gifski path in the environment"),
         frames_per_second: env::var("FRAMES_PER_SECOND")
             .unwrap_or_else(|_| "12.0".to_string())
@@ -329,8 +355,7 @@ async fn main() {
             .expect("Expected a valid boolean for delete old interactions"),
     };
 
-    if !Path::new(&context.mesh_thumbnail_path).is_file()
-        || !Path::new(&context.gifski_path).is_file()
+    if !Path::new(&context.gifski_path).is_file()
     {
         panic!("Invalid paths provided in the environment variables.");
     }
