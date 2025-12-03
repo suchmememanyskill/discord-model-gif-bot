@@ -1,6 +1,7 @@
 use std::env;
 use std::path::Path;
 use std::path::PathBuf;
+use std::time::Duration;
 use std::time::Instant;
 
 use libmeshthumbnail::parse_model;
@@ -21,6 +22,7 @@ use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use tokio::io::AsyncWriteExt;
 use tokio::process::Command as TokioCommand;
+use tokio::time::sleep;
 use vek::Vec2;
 use vek::Vec3;
 
@@ -77,6 +79,9 @@ async fn generate_gif_from_attachment(
     }
 
     println!("Downloaded attachment to {:?}", file_path);
+    file.flush().await.expect("Failed to flush file");
+    drop(file);
+    sleep(Duration::from_millis(100)).await;    
 
     match {
         let file_path = file_path.clone();
