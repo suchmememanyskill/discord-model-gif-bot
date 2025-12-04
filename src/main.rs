@@ -79,9 +79,17 @@ async fn generate_gif_from_attachment(
     }
 
     println!("Downloaded attachment to {:?}", file_path);
-    file.flush().await.expect("Failed to flush file");
+    if let Err(why) = file.flush().await {
+        println!("Failed to flush file {:?}: {}", file_path, why);
+        return None;
+    }
+    if let Err(why) = file.sync_all().await {
+        println!("Failed to sync file {:?}: {}", file_path, why);
+        return None;
+    }
     drop(file);
-    sleep(Duration::from_millis(100)).await;    
+    sleep(Duration::from_millis(100)).await;
+    println!("Starting image rendering...");
 
     match {
         let file_path = file_path.clone();
