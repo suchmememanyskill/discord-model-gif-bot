@@ -192,7 +192,7 @@ impl EventHandler for Handler {
             .attachments
             .into_iter()
             .filter(|p| {
-                vec![".3mf", ".stl", ".obj", ".gcode"]
+                vec![".3mf", ".stl", ".obj", ".gcode", ".stp", ".step"]
                     .iter()
                     .any(|f| p.filename.to_lowercase().ends_with(f))
             })
@@ -256,7 +256,7 @@ impl EventHandler for Handler {
             .attachments
             .iter()
             .filter(|p| {
-                vec![".3mf", ".stl", ".obj", ".gcode"]
+                vec![".3mf", ".stl", ".obj", ".gcode", ".stp", ".step"]
                     .iter()
                     .any(|f| p.filename.to_lowercase().ends_with(f))
             })

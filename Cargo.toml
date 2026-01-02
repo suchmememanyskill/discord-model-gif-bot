@@ -9,7 +9,7 @@ tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "process"] }
 tempfile = "3"
 uuid = { version = "1.17", features = ["v4"] }
 image = { version = "0", features = ["png", "jpeg"] }
-libmeshthumbnail = { git = "https://github.com/suchmememanyskill/mesh-thumbnail", branch = "software" }
+libmeshthumbnail = { git = "https://github.com/suchmememanyskill/mesh-thumbnail", rev = "7601f605f3467daa11af96f383188c53454292ca", features = ["step"]}
 vek = "0"
 
 [profile.release]
