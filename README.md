@@ -26,5 +26,5 @@ Variable | Default value | Value type | Description
 ---|---|---|---
 DISCORD_TOKEN | None | String | Discord token. Required.
 FRAMES_PER_SECOND | 11.0 | Float | Playback speed in frames per second for the output .gif
-FRAMES | 99 | Integer | Amount of frames generates
+FRAMES | 88 | Integer | Amount of frames generates
 DELETE_OLD_INTERACTIONS | false | Boolean | Deletes old interactions before initialisation. Set this to `true` if the right click apps interaction doesn't show up
