@@ -6,6 +6,8 @@ When invited to a guild, posted 3d models will be converted to a .gif and this g
 
 When installed to the user, a message can be right clicked, and a .gif can be generated under the apps section.
 
+![3DBenchy](3DBenchy.gif)
+
 ## Setup
 
 Docker compose example:
@@ -23,8 +25,6 @@ services:
 Variable | Default value | Value type | Description
 ---|---|---|---
 DISCORD_TOKEN | None | String | Discord token. Required.
-FRAMES_PER_SECOND | 12.0 | Float | Playback speed in frames per second for the output .gif
-FRAMES | 60 | Integer | Amount of frames generates
+FRAMES_PER_SECOND | 11.0 | Float | Playback speed in frames per second for the output .gif
+FRAMES | 99 | Integer | Amount of frames generates
 DELETE_OLD_INTERACTIONS | false | Boolean | Deletes old interactions before initialisation. Set this to `true` if the right click apps interaction doesn't show up
-
-If you'd like a slower playing gif, try `FRAMES_PER_SECOND` at `11.0` and `FRAMES` at `88`
