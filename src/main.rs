@@ -364,11 +364,11 @@ async fn main() {
     let context = Handler {
         gifski_path: env::var("GIFSKI_PATH").expect("Expected a gifski path in the environment"),
         frames_per_second: env::var("FRAMES_PER_SECOND")
-            .unwrap_or_else(|_| "12.0".to_string())
+            .unwrap_or_else(|_| "11.0".to_string())
             .parse()
             .expect("Expected a valid frames per second value"),
         frames: env::var("FRAMES")
-            .unwrap_or_else(|_| "60".to_string())
+            .unwrap_or_else(|_| "88".to_string())
             .parse()
             .expect("Expected a valid number of frames"),
         delete_old_interactions: env::var("DELETE_OLD_INTERACTIONS")
