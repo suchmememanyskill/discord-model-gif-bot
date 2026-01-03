@@ -1,6 +1,6 @@
 # Discord 3d model gif bot
 
-Converts posted 3d models in a discord channel (stl/3mf/obj/gcode) into a .gif that is posted in the same channel.
+Converts posted 3d models in a discord channel (stl/3mf/obj/gcode/step) into a .gif that is posted in the same channel.
 
 When invited to a guild, posted 3d models will be converted to a .gif and this gif will be posted to the same channel.
 
